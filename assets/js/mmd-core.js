@@ -438,9 +438,9 @@
      ---------------------------------------------------------- */
   MMD.LOGO_SVG =
     '<span class="mmd-logo" aria-label="MortgageMD">' +
-    '<svg viewBox="0 0 40 40" width="34" height="34" aria-hidden="true"><defs>' +
-    '<linearGradient id="mmdlg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5b5dbb"/><stop offset="1" stop-color="#49a9e8"/></linearGradient></defs>' +
-    '<rect width="40" height="40" rx="11" fill="url(#mmdlg)"/><text x="20" y="26" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="800" fill="#fff" text-anchor="middle">MD</text></svg>' +
+    '<svg viewBox="0 0 128 104" height="30" aria-hidden="true">' +
+    '<g fill="#49a9e8"><rect x="12.5" y="38" width="7" height="28" rx="3.5"/><rect x="21.5" y="31" width="7" height="42" rx="3.5"/><rect x="30.5" y="25" width="7" height="54" rx="3.5"/><rect x="39.5" y="20" width="7" height="64" rx="3.5"/><rect x="48.5" y="16" width="7" height="72" rx="3.5"/><rect x="57.5" y="13" width="7" height="78" rx="3.5"/></g>' +
+    '<g fill="#5b5dbb"><rect x="63.5" y="13" width="7" height="78" rx="3.5"/><rect x="72.5" y="16" width="7" height="72" rx="3.5"/><rect x="81.5" y="20" width="7" height="64" rx="3.5"/><rect x="90.5" y="25" width="7" height="54" rx="3.5"/><rect x="99.5" y="31" width="7" height="42" rx="3.5"/><rect x="108.5" y="38" width="7" height="28" rx="3.5"/></g></svg>' +
     '<b style="font-weight:800;font-size:1.2rem;margin-left:9px"><span style="color:#344054">MORTGAGE</span><span style="color:#49a9e8">MD</span></b></span>';
 
   MMD.renderPreviewChrome = function (opts) {
