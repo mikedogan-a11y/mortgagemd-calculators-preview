@@ -86,6 +86,8 @@
     ACT: [[0,20,0.49],[200000,980,2.20],[300000,3180,3.40],[500000,9980,4.32],
           [750000,20780,5.90],[1000000,35530,6.40]]
   };
+  // QLD home concession scale — owner-occupiers (concessional rate on first $350k).
+  var QLD_HOME = [[0,0,1.00],[350000,3500,3.50],[540000,10150,4.50],[1000000,30850,5.75]];
   function dutyFromScale(scale, price) {
     var b = scale[0];
     for (var i = 0; i < scale.length; i++) { if (price >= scale[i][0]) b = scale[i]; else break; }
@@ -102,10 +104,11 @@
     if (price <= 525000) { var v = price / 1000; return (0.06571441 * v * v) + 15 * v; }
     return price * 0.0495;
   }
-  function baseStampDuty(state, price) {
+  function baseStampDuty(state, price, ownerOcc) {
     if (price <= 0) return 0;
     if (state === "VIC") return dutyVIC(price);
     if (state === "NT")  return dutyNT(price);
+    if (state === "QLD" && ownerOcc) return dutyFromScale(QLD_HOME, price); // QLD home concession
     var scale = DUTY_SCALES[state];
     return scale ? dutyFromScale(scale, price) : 0;
   }
@@ -135,8 +138,15 @@
   MMD.stampDuty = function (state, price, opts) {
     opts = opts || {};
     var isOwnerOcc = opts.ownerOccupier !== false; // default owner-occupier
-    var duty = baseStampDuty(state, price);
-    duty = applyFHB(duty, state, price, !!opts.firstHomeBuyer, isOwnerOcc);
+    var isNew = !!opts.newBuild;
+    var duty = baseStampDuty(state, price, isOwnerOcc);
+    if (state === "SA") {
+      // SA first-home relief applies to NEW homes only (no value cap);
+      // first-home buyers of ESTABLISHED homes pay full duty.
+      if (opts.firstHomeBuyer && isOwnerOcc && isNew) duty = 0;
+    } else {
+      duty = applyFHB(duty, state, price, !!opts.firstHomeBuyer, isOwnerOcc);
+    }
     if (opts.foreign) duty += price * (FOREIGN_SURCHARGE[state] || 0);
     return Math.max(0, Math.round(duty));
   };
@@ -145,13 +155,30 @@
     return { transfer: f.transfer, registration: f.registration, total: f.transfer + f.registration };
   };
 
-  // LMI: indicative premium as % of loan by LVR band. Nil at/below 80%.
-  function lmiRate(lvr) {
+  // LMI: indicative premium as % of loan, by LVR band AND loan-size band.
+  // Premium rises with both LVR and loan amount. Nil at/below 80% LVR.
+  // Columns = loan-amount upper bounds; rows = LVR upper bounds. INDICATIVE only.
+  var LMI_LOAN_BANDS = [300000, 500000, 600000, 750000, 1000000, Infinity];
+  var LMI_MATRIX = [
+    [81,  [0.48, 0.57, 0.65, 0.69, 0.80, 0.90]],
+    [82,  [0.57, 0.69, 0.78, 0.86, 0.97, 1.05]],
+    [84,  [0.72, 0.82, 0.91, 1.02, 1.12, 1.23]],
+    [85,  [0.80, 0.97, 1.06, 1.16, 1.30, 1.45]],
+    [86,  [0.97, 1.12, 1.23, 1.36, 1.53, 1.70]],
+    [88,  [1.23, 1.40, 1.53, 1.69, 1.90, 2.10]],
+    [90,  [1.53, 1.79, 2.06, 2.31, 2.62, 2.90]],
+    [91,  [2.00, 2.40, 2.70, 3.00, 3.30, 3.60]],
+    [92,  [2.20, 2.60, 2.90, 3.30, 3.70, 4.00]],
+    [94,  [2.80, 3.30, 3.70, 4.10, 4.55, 4.90]],
+    [95,  [3.10, 3.70, 4.20, 4.70, 5.10, 5.50]],
+    [200, [3.50, 4.10, 4.60, 5.10, 5.60, 6.00]]
+  ];
+  function lmiRate(lvr, loan) {
     if (lvr <= 80) return 0;
-    if (lvr <= 81) return 0.475; if (lvr <= 82) return 0.568; if (lvr <= 84) return 0.717;
-    if (lvr <= 85) return 0.804; if (lvr <= 86) return 0.969; if (lvr <= 88) return 1.234;
-    if (lvr <= 90) return 1.534; if (lvr <= 91) return 2.000; if (lvr <= 92) return 2.200;
-    if (lvr <= 94) return 3.000; if (lvr <= 95) return 3.500; return 4.000;
+    var col = LMI_LOAN_BANDS.length - 1;
+    for (var c = 0; c < LMI_LOAN_BANDS.length; c++) { if (loan <= LMI_LOAN_BANDS[c]) { col = c; break; } }
+    for (var r = 0; r < LMI_MATRIX.length; r++) { if (lvr <= LMI_MATRIX[r][0]) return LMI_MATRIX[r][1][col]; }
+    return 6.0;
   }
   MMD.lvr = function (loan, value) {
     if (!value || value <= 0) return 0;
@@ -161,7 +188,7 @@
     if (value <= 0 || loan <= 0) return 0;
     var lvr = loan / value * 100;
     if (lvr <= 80) return 0;
-    return Math.max(0, Math.round(loan * lmiRate(lvr) / 100));
+    return Math.max(0, Math.round(loan * lmiRate(lvr, loan) / 100));
   };
 
   // Standard amortised repayment (per period). rateAnnualPct, years, periodsPerYear.
@@ -175,10 +202,26 @@
     return MMD.finite(principal * i / (1 - Math.pow(1 + i, -n)));
   };
 
+  // Australian resident income tax (2024-25 brackets) + 2% Medicare levy.
+  // Indicative only — ignores offsets (LITO), Medicare reductions/surcharge, HELP, etc.
+  MMD.incomeTaxAnnual = function (g) {
+    g = MMD.finite(g); if (g <= 0) return 0;
+    var t;
+    if (g > 190000) t = 51638 + (g - 190000) * 0.45;
+    else if (g > 135000) t = 31288 + (g - 135000) * 0.37;
+    else if (g > 45000) t = 4288 + (g - 45000) * 0.30;
+    else if (g > 18200) t = (g - 18200) * 0.16;
+    else t = 0;
+    var medicare = g > 26000 ? g * 0.02 : 0; // simplified low-income threshold
+    return t + medicare;
+  };
+  MMD.netAnnualIncome = function (g) { return Math.max(0, MMD.finite(g) - MMD.incomeTaxAnnual(g)); };
+
   MMD.rates = {
-    DUTY_SCALES: DUTY_SCALES, dutyVIC: dutyVIC, dutyNT: dutyNT,
-    FHB: FHB, FOREIGN_SURCHARGE: FOREIGN_SURCHARGE, GOV_FEES: GOV_FEES, lmiRate: lmiRate,
-    lastReviewed: "2026-06-05"  // update on each maintenance pass
+    DUTY_SCALES: DUTY_SCALES, QLD_HOME: QLD_HOME, dutyVIC: dutyVIC, dutyNT: dutyNT,
+    FHB: FHB, FOREIGN_SURCHARGE: FOREIGN_SURCHARGE, GOV_FEES: GOV_FEES,
+    lmiRate: lmiRate, LMI_MATRIX: LMI_MATRIX, LMI_LOAN_BANDS: LMI_LOAN_BANDS,
+    lastReviewed: "2026-06-07"  // update on each maintenance pass
   };
 
   MMD.STATES = [

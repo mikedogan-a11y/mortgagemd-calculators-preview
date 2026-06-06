@@ -41,8 +41,8 @@
 
     // gross income (rental shaded to 80%)
     var grossAnnual = primaryIncome + secondIncome + (rentalMonthly * 12 * 0.80);
-    // simple net-of-tax factor
-    var netMonthly = (grossAnnual / 12) * 0.75;
+    // net income after resident income tax + 2% Medicare levy (indicative)
+    var netMonthly = MMD.netAnnualIncome(grossAnnual) / 12;
     // commitments (credit card limits assessed at ~3.8%/month)
     var commitments = livingExpenses + otherMonthly + hecsMonthly + (creditCardLimits * 0.038);
     var surplus = netMonthly - commitments;
@@ -120,7 +120,7 @@
         "A serviceability buffer of 3.0% is added to your assessment rate to estimate capacity, in line with general APRA-style lending practice.",
         "Lender-specific living-expense benchmarks (such as HEM) and lender-specific income shading are not applied.",
         "Rental income is shaded to 80% and credit card limits are assessed at approximately 3.8% of the limit per month.",
-        "A simplified net-of-tax factor is used and does not reflect your actual tax position or every commitment."
+        "Net income is estimated using 2024-25 resident income tax rates plus the 2% Medicare levy; offsets (e.g. LITO), HELP repayments and the Medicare levy surcharge are not applied."
       ],
       warnings: [
         "Actual borrowing capacity varies materially between lenders and is always subject to full assessment and policy.",

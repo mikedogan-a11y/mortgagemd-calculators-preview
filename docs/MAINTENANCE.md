@@ -30,11 +30,19 @@ All rate logic is centralised in **`assets/js/mmd-core.js`** → `MMD.rates`. Up
 
 - Duty scales, FHB concessions, surcharges, gov fees and LMI rates are **indicative
   approximations (broadly 2024–25)**, not authoritative.
-- **Not modelled:** QLD home concession, off-the-plan / new-build concessions beyond the
-  FHB bands, vacant-land specifics, regional variations, and most state-specific schemes.
-- **LMI** does not vary by lender, LMI provider, loan-size tier or property type.
-- **Borrowing Power** uses a simplified net-income factor and a flat living-expense input
-  (no HEM benchmark, no lender-specific shading).
+- **Modelled as of 2026-06-07 (external-review fixes):** QLD owner-occupier **home
+  concession** (`QLD_HOME` scale); SA first-home relief **gated to new builds only**
+  (established-home first-home buyers pay full duty); LMI is now **loan-size-aware**
+  (`LMI_MATRIX`, LVR × loan-amount); Borrowing Power uses **real 2024-25 resident marginal
+  tax + 2% Medicare** (`MMD.incomeTaxAnnual`).
+- **Still NOT modelled (verify / future work):** the **ACT 1 July 2025 rate reform and ACT
+  owner-occupier concessions**; off-the-plan/new-build concessions beyond the SA rule;
+  vacant-land specifics; regional variations; and most other state-specific schemes.
+- **LMI** matrix is indicative and does not vary by lender, LMI provider or property type,
+  and is not a quote — benchmark against a real estimator (Helia/QBE or a lender) on review.
+- **Borrowing Power** tax model ignores offsets (LITO), HELP repayments and the Medicare
+  levy surcharge; still uses a flat user living-expense input (no HEM benchmark) and no
+  lender-specific income shading.
 - **LMI Waiver** is a discussion guide only — no specific lender policy, LVR cap or
   postcode logic is encoded (intentionally).
 
@@ -51,6 +59,7 @@ Update the same day a change is announced/takes effect for:
 | Date reviewed | By | Items changed | Next review due |
 |---|---|---|---|
 | 2026-06-05 | (initial build) | Initial indicative tables | (set on first real review) |
+| 2026-06-07 | external review + fixes | QLD home concession added; SA FHB → new-build only; LMI made loan-size-aware (2D matrix); Borrowing Power real tax + Medicare. Outstanding: ACT 2025 reform; benchmark LMI vs insurer; NSW CPI thresholds | quarterly |
 
 ## 5. How to test after an update
 

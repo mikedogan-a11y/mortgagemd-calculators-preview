@@ -5,7 +5,7 @@
   "use strict";
   var KEY = "purchase-costs";
 
-  var INPUTS = ["pc_price","pc_state","pc_purpose","pc_fhb","pc_deposit","pc_loan",
+  var INPUTS = ["pc_price","pc_state","pc_purpose","pc_fhb","pc_proptype","pc_deposit","pc_loan",
                 "pc_conveyancing","pc_lenderfees","pc_other"];
   // default upfront cost assumptions (editable by the user)
   var DEFAULTS = { pc_conveyancing: 1800, pc_lenderfees: 600, pc_other: 0 };
@@ -21,13 +21,14 @@
     var state   = MMD.$("pc_state").value;
     var ownerOcc = MMD.$("pc_purpose").value === "oo";
     var fhb     = MMD.$("pc_fhb").value === "yes";
+    var isNew   = MMD.$("pc_proptype").value === "new";
     var deposit = num("pc_deposit");
     var loan    = num("pc_loan");
     var conveyancing = num("pc_conveyancing", DEFAULTS.pc_conveyancing);
     var lenderFees   = num("pc_lenderfees", DEFAULTS.pc_lenderfees);
     var other        = num("pc_other", DEFAULTS.pc_other);
 
-    var stamp = MMD.stampDuty(state, price, { ownerOccupier: ownerOcc, firstHomeBuyer: fhb, foreign: false });
+    var stamp = MMD.stampDuty(state, price, { ownerOccupier: ownerOcc, firstHomeBuyer: fhb, newBuild: isNew, foreign: false });
     var gov   = MMD.govFees(state);
     var lmi   = MMD.lmi(loan, price);
 
