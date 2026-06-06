@@ -11,7 +11,7 @@
 
   // Indicative assessment factors (document as approximations only).
   var CARD_ASSESS_RATE = 0.038;   // ~3.8%/month of card + facility LIMITS assessed
-  var DEPENDANT_LOADING = 120;    // indicative monthly living-cost loading per dependant
+  var DEPENDANT_LOADING = 500;    // indicative monthly living-cost loading per dependant (HEM-style)
   var ASSESS_RATE_ANNUAL = 9.5;   // indicative assessment rate used to capitalise the monthly impact
 
   function num(id) {

@@ -49,9 +49,14 @@
 
     var professionEligible = (profKey !== "other");
     var income150plus = !!INCOME_150_PLUS[income];
+    var hasInputs = price > 0 && loan > 0;
 
     var bandClass, bandText;
-    if (professionEligible && member && income150plus && lvr <= 90) {
+    if (!hasInputs) {
+      // Neutral default until enough is entered — do not imply eligibility on blank inputs.
+      bandClass = "is-talk";
+      bandText  = "Enter your price, loan and details to explore possible waiver pathways";
+    } else if (professionEligible && member && income150plus && lvr <= 90) {
       bandClass = "is-strong";
       bandText  = "An LMI waiver may be worth discussing";
     } else if (professionEligible && lvr <= 95) {
@@ -68,6 +73,7 @@
       income: income,
       incomeLabel: INCOME_LABELS[income] || "—",
       lvr: lvr,
+      hasInputs: hasInputs,
       bandClass: bandClass,
       bandText: bandText
     };
@@ -81,6 +87,9 @@
       band.className = "mmd-band " + r.bandClass;
       band.textContent = r.bandText;
     }
+    // Keep the "you may be eligible" discussion paragraph hidden until details are entered.
+    var para = MMD.$("lwr_para");
+    if (para) para.style.display = r.hasInputs ? "" : "none";
 
     MMD.setText("lwr_lvr", MMD.fmtPercent(r.lvr));
     var meter = MMD.$("lwr_lvrmeter");

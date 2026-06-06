@@ -35,9 +35,17 @@ All rate logic is centralised in **`assets/js/mmd-core.js`** → `MMD.rates`. Up
   (established-home first-home buyers pay full duty); LMI is now **loan-size-aware**
   (`LMI_MATRIX`, LVR × loan-amount); Borrowing Power uses **real 2024-25 resident marginal
   tax + 2% Medicare** (`MMD.incomeTaxAnnual`).
+- **Also modelled 2026-06-07 (multi-AI review round 2):** **NSW FY2025-26 indexed duty
+  scale** ($372k bracket base $11,152; premium at $3,721,000 — $1M → $39,412); **QLD
+  first-home new-build** full exemption (no value cap); **foreign-purchaser surcharge**
+  exposed via a Purchase Costs toggle; Borrowing Power **HEM-style expense floor**
+  (single ~$1,800/mo, couple ~$2,900/mo, +$450/dependant) and dependants now affect
+  capacity; LMI Waiver shows a **neutral default** until inputs are entered.
 - **Still NOT modelled (verify / future work):** the **ACT 1 July 2025 rate reform and ACT
-  owner-occupier concessions**; off-the-plan/new-build concessions beyond the SA rule;
-  vacant-land specifics; regional variations; and most other state-specific schemes.
+  owner-occupier concessions**; the **VIC off-the-plan / new-build concession**; vacant-land
+  specifics; regional variations; and most other state-specific schemes. **Re-verify the
+  SA / WA / TAS / NT duty scales against current indexed figures** (only NSW and VIC have
+  been confirmed current).
 - **LMI** matrix is indicative and does not vary by lender, LMI provider or property type,
   and is not a quote — benchmark against a real estimator (Helia/QBE or a lender) on review.
 - **Borrowing Power** tax model ignores offsets (LITO), HELP repayments and the Medicare
@@ -59,7 +67,8 @@ Update the same day a change is announced/takes effect for:
 | Date reviewed | By | Items changed | Next review due |
 |---|---|---|---|
 | 2026-06-05 | (initial build) | Initial indicative tables | (set on first real review) |
-| 2026-06-07 | external review + fixes | QLD home concession added; SA FHB → new-build only; LMI made loan-size-aware (2D matrix); Borrowing Power real tax + Medicare. Outstanding: ACT 2025 reform; benchmark LMI vs insurer; NSW CPI thresholds | quarterly |
+| 2026-06-07 | external review + fixes (r1) | QLD home concession; SA FHB → new-build only; LMI loan-size-aware (2D matrix); Borrowing Power real tax + Medicare | quarterly |
+| 2026-06-07 | multi-AI review (r2) | NSW FY2025-26 indexation ($1M → $39,412); QLD new-home FHB exemption; foreign-purchaser toggle (Purchase Costs); LMI Waiver neutral default; Borrowing Power HEM floor + clearer rate field; drag dependant loading $120→$500. Outstanding: ACT 2025 reform; VIC off-the-plan; benchmark LMI vs insurer; verify SA/WA/TAS/NT indexation | quarterly |
 
 ## 5. How to test after an update
 

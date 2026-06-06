@@ -75,8 +75,8 @@
      ---------------------------------------------------------- */
   // Transfer-duty scales: [lowerThreshold, baseDuty, ratePer$100AboveThreshold]
   var DUTY_SCALES = {
-    NSW: [[0,0,1.25],[17000,212,1.50],[36000,497,1.75],[97000,1564,3.50],
-          [364000,10909,4.50],[1212000,49069,5.50],[3636000,182390,7.00]],
+    NSW: [[0,0,1.25],[18000,225,1.50],[37000,510,1.75],[99000,1595,3.50],
+          [372000,11152,4.50],[1243000,50345,5.50],[3721000,186635,7.00]], // FY2025-26 indexed
     QLD: [[0,0,0],[5000,0,1.50],[75000,1050,3.50],[540000,17325,4.50],[1000000,38025,5.75]],
     SA:  [[0,0,1.00],[12000,120,2.00],[30000,480,3.00],[50000,1080,3.50],[100000,2830,4.00],
           [200000,6830,4.25],[250000,8955,4.75],[300000,11330,5.00],[500000,21330,5.50]],
@@ -144,6 +144,8 @@
       // SA first-home relief applies to NEW homes only (no value cap);
       // first-home buyers of ESTABLISHED homes pay full duty.
       if (opts.firstHomeBuyer && isOwnerOcc && isNew) duty = 0;
+    } else if (state === "QLD" && opts.firstHomeBuyer && isOwnerOcc && isNew) {
+      duty = 0; // QLD first home (new home) concession — no value cap
     } else {
       duty = applyFHB(duty, state, price, !!opts.firstHomeBuyer, isOwnerOcc);
     }

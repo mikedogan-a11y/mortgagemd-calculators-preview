@@ -35,6 +35,8 @@
     var otherMonthly   = num("bp_othercommit");
     var hecsMonthly    = num("bp_hecs");
     var rentalMonthly  = num("bp_rental");
+    var applicants     = MMD.$("bp_applicants").value;
+    var dependants     = MMD.parseMoney(MMD.$("bp_dependants").value);
     var assessmentRate = num("bp_rate", DEFAULTS.bp_rate);
     var term           = num("bp_term", DEFAULTS.bp_term);
     if (term <= 0) term = DEFAULTS.bp_term;
@@ -43,8 +45,11 @@
     var grossAnnual = primaryIncome + secondIncome + (rentalMonthly * 12 * 0.80);
     // net income after resident income tax + 2% Medicare levy (indicative)
     var netMonthly = MMD.netAnnualIncome(grossAnnual) / 12;
+    // indicative HEM-style minimum monthly living expenses (floor), by household size
+    var hemFloor = (applicants === "couple" ? 2900 : 1800) + dependants * 450;
+    var effectiveExpenses = Math.max(livingExpenses, hemFloor);
     // commitments (credit card limits assessed at ~3.8%/month)
-    var commitments = livingExpenses + otherMonthly + hecsMonthly + (creditCardLimits * 0.038);
+    var commitments = effectiveExpenses + otherMonthly + hecsMonthly + (creditCardLimits * 0.038);
     var surplus = netMonthly - commitments;
 
     // APRA-style serviceability buffer added to the assessment rate
@@ -118,7 +123,7 @@
       showComparisonWarning: true,
       assumptions: [
         "A serviceability buffer of 3.0% is added to your assessment rate to estimate capacity, in line with general APRA-style lending practice.",
-        "Lender-specific living-expense benchmarks (such as HEM) and lender-specific income shading are not applied.",
+        "Your living expenses are floored at an indicative HEM-style minimum based on household size; lender-specific HEM tables and income shading are not replicated.",
         "Rental income is shaded to 80% and credit card limits are assessed at approximately 3.8% of the limit per month.",
         "Net income is estimated using 2024-25 resident income tax rates plus the 2% Medicare levy; offsets (e.g. LITO), HELP repayments and the Medicare levy surcharge are not applied."
       ],
