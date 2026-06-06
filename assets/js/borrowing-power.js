@@ -9,10 +9,10 @@
 
   var INPUTS = ["bp_applicants","bp_purpose","bp_income","bp_income2","bp_incometype",
                 "bp_dependants","bp_expenses","bp_cardlimits","bp_othercommit",
-                "bp_hecs","bp_rental","bp_rate","bp_term"];
+                "bp_hecs","bp_rental","bp_rate","bp_term","bp_buffer"];
 
   // sensible defaults (editable by the user)
-  var DEFAULTS = { bp_rate: 6.50, bp_term: 30 };
+  var DEFAULTS = { bp_rate: 6.50, bp_term: 30, bp_buffer: 3.0 };
 
   function num(id, fallback) {
     var raw = (MMD.$(id) && MMD.$(id).value || "").trim();
@@ -40,20 +40,22 @@
     var assessmentRate = num("bp_rate", DEFAULTS.bp_rate);
     var term           = num("bp_term", DEFAULTS.bp_term);
     if (term <= 0) term = DEFAULTS.bp_term;
+    var buffer         = num("bp_buffer", DEFAULTS.bp_buffer);   // adjustable serviceability buffer
+    if (buffer < 0) buffer = 0; if (buffer > 5) buffer = 5;
 
     // gross income (rental shaded to 80%)
     var grossAnnual = primaryIncome + secondIncome + (rentalMonthly * 12 * 0.80);
     // net income after resident income tax + 2% Medicare levy (indicative)
     var netMonthly = MMD.netAnnualIncome(grossAnnual) / 12;
     // indicative HEM-style minimum monthly living expenses (floor), by household size
-    var hemFloor = (applicants === "couple" ? 2900 : 1800) + dependants * 450;
+    var hemFloor = (applicants === "couple" ? 2400 : 1500) + dependants * 350;
     var effectiveExpenses = Math.max(livingExpenses, hemFloor);
-    // commitments (credit card limits assessed at ~3.8%/month)
-    var commitments = effectiveExpenses + otherMonthly + hecsMonthly + (creditCardLimits * 0.038);
+    // commitments (credit card limits assessed at ~3.0%/month)
+    var commitments = effectiveExpenses + otherMonthly + hecsMonthly + (creditCardLimits * 0.030);
     var surplus = netMonthly - commitments;
 
-    // APRA-style serviceability buffer added to the assessment rate
-    var assessRate = assessmentRate + 3.0;
+    // APRA-style serviceability buffer added to the assessment rate (user-adjustable)
+    var assessRate = assessmentRate + buffer;
 
     // capacity (annuity present value of the monthly surplus)
     var i = (assessRate / 100) / 12;
@@ -68,8 +70,8 @@
     }
     maxLoan = MMD.finite(maxLoan);
 
-    var low  = round1000(maxLoan * 0.9);
-    var high = round1000(maxLoan * 1.1);
+    var low  = round1000(maxLoan * 0.98);
+    var high = round1000(maxLoan * 1.15);
 
     return {
       ownerOcc: ownerOcc, incomeType: incomeType,
@@ -122,13 +124,14 @@
       calcName: "Borrowing Power",
       showComparisonWarning: true,
       assumptions: [
-        "A serviceability buffer of 3.0% is added to your assessment rate to estimate capacity, in line with general APRA-style lending practice.",
-        "Your living expenses are floored at an indicative HEM-style minimum based on household size; lender-specific HEM tables and income shading are not replicated.",
-        "Rental income is shaded to 80% and credit card limits are assessed at approximately 3.8% of the limit per month.",
+        "A serviceability buffer is added to your interest rate to estimate capacity — default 3.0% and adjustable, in line with APRA-style practice; some lenders apply a smaller buffer.",
+        "Living expenses use the higher of the figure you enter or an indicative minimum for your household size; lender-specific HEM tables are not replicated.",
+        "Rental income is shaded to 80%; credit card limits are assessed at approximately 3.0% of the limit per month.",
         "Net income is estimated using 2024-25 resident income tax rates plus the 2% Medicare levy; offsets (e.g. LITO), HELP repayments and the Medicare levy surcharge are not applied."
       ],
       warnings: [
-        "Actual borrowing capacity varies materially between lenders and is always subject to full assessment and policy.",
+        "This is an indicative range only — a specific lender's assessment may be higher or lower, and is always subject to full assessment and policy.",
+        "Actual borrowing capacity varies materially between lenders.",
         "Self-employed income assessment varies significantly between lenders and may require additional verification."
       ]
     });

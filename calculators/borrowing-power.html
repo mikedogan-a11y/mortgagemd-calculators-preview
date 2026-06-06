@@ -108,8 +108,13 @@
                 <div class="mmd-input">
                   <input type="text" inputmode="decimal" id="bp_term" placeholder="30" autocomplete="off" /><span class="mmd-input__suffix">yrs</span></div>
               </div>
+              <div class="mmd-field">
+                <label for="bp_buffer">Serviceability buffer</label>
+                <div class="mmd-input">
+                  <input type="text" inputmode="decimal" id="bp_buffer" placeholder="3.00" autocomplete="off" /><span class="mmd-input__suffix">%</span></div>
+              </div>
             </div>
-            <p class="mmd-hint">We add a serviceability buffer to your assessment rate and shade some income, in line with general lending practice. Figures are indicative only — lender policy varies materially.</p>
+            <p class="mmd-hint">A serviceability buffer (default 3.00%, adjustable) is added to your rate and some income is shaded, in line with general lending practice. Figures are indicative only — a specific lender may assess higher or lower.</p>
 
             <div class="mmd-actions">
               <button type="submit" class="mmd-btn mmd-btn--primary" id="bp_calc">Calculate</button>
