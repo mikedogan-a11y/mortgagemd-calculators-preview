@@ -60,10 +60,43 @@
   MMD.$ = function (id) { return document.getElementById(id); };
   MMD.setText = function (id, text) { var e = MMD.$(id); if (e) e.textContent = text; };
   MMD.on = function (id, evt, cb) { var e = MMD.$(id); if (e) e.addEventListener(evt, cb); };
+  // Live thousands-separator formatting for $-prefixed money inputs (e.g. 700000 -> 700,000).
+  function fmtMoneyTyped(v) {
+    var cleaned = String(v).replace(/[^0-9.]/g, "");
+    var dot = cleaned.indexOf("."), hasDot = dot >= 0, intRaw, decRaw = "";
+    if (hasDot) { intRaw = cleaned.slice(0, dot); decRaw = cleaned.slice(dot + 1).replace(/\./g, "").slice(0, 2); }
+    else { intRaw = cleaned; }
+    intRaw = intRaw.replace(/^0+(?=\d)/, "");
+    var intFmt = intRaw.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    if (intFmt === "") intFmt = hasDot ? "0" : "";
+    return intFmt + (hasDot ? "." + decRaw : "");
+  }
+  function attachMoneyFormat(el) {
+    el.addEventListener("input", function () {
+      var caret = el.selectionStart;
+      var digitsLeft = String(el.value).slice(0, caret).replace(/[^0-9]/g, "").length;
+      var formatted = fmtMoneyTyped(el.value);
+      if (formatted === el.value) return;
+      el.value = formatted;
+      var pos = 0, seen = 0;
+      while (pos < formatted.length && seen < digitsLeft) {
+        var c = formatted.charCodeAt(pos); if (c >= 48 && c <= 57) seen++; pos++;
+      }
+      try { el.setSelectionRange(pos, pos); } catch (e) {}
+    });
+  }
+  function isMoneyInput(el) {
+    if (!el.closest) return false;
+    var wrap = el.closest(".mmd-input"); if (!wrap) return false;
+    var pre = wrap.querySelector(".mmd-input__prefix");
+    return !!(pre && pre.textContent.trim() === "$");
+  }
+
   MMD.bind = function (ids, cb) {
     ids.forEach(function (id) {
       var e = MMD.$(id);
       if (!e) return;
+      if (isMoneyInput(e)) attachMoneyFormat(e); // auto comma-format $ fields
       var evt = (e.tagName === "SELECT" || e.type === "checkbox" || e.type === "radio") ? "change" : "input";
       e.addEventListener(evt, cb);
       e.addEventListener("change", cb);

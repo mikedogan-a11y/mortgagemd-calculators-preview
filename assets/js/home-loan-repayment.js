@@ -44,8 +44,8 @@
       totalInterest = totalRepaid - loan;
     }
 
-    // Rate-movement scenarios: -0.50%, current, +1.00%, +2.00%
-    var deltas = [-0.50, 0, 1.00, 2.00];
+    // Rate-movement scenarios: current, +1.00%, +2.00% (a lower-rate scenario adds no value)
+    var deltas = [0, 1.00, 2.00];
     var scenarios = deltas.map(function (d) {
       var sr = Math.max(0, rate + d);
       return { delta: d, rate: sr, payment: MMD.repayment(loan, sr, years, ppy, interestOnly) };
