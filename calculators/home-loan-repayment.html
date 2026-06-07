@@ -57,7 +57,29 @@
                 </select></div>
               </div>
             </div>
-            <p class="mmd-hint">Repayments are estimates assuming the rate stays constant for the period shown. Fees are not included. The rate-movement scenario is illustrative only.</p>
+
+            <h2 class="mmd-panel__h mmd-panel__h--spaced">Extra repayments (optional)</h2>
+            <div class="mmd-fields">
+              <div class="mmd-field">
+                <label for="rp_extra">Extra repayment amount</label>
+                <div class="mmd-input"><span class="mmd-input__prefix">$</span>
+                  <input type="text" inputmode="decimal" id="rp_extra" placeholder="0.00" autocomplete="off" /></div>
+              </div>
+              <div class="mmd-field">
+                <label for="rp_extrafreq">Extra repayment frequency</label>
+                <div class="mmd-select"><select id="rp_extrafreq">
+                  <option value="12">Monthly</option>
+                  <option value="26">Fortnightly</option>
+                  <option value="52">Weekly</option>
+                </select></div>
+              </div>
+              <div class="mmd-field mmd-field--full">
+                <label for="rp_lump">One-off lump sum (paid now)</label>
+                <div class="mmd-input"><span class="mmd-input__prefix">$</span>
+                  <input type="text" inputmode="decimal" id="rp_lump" placeholder="0.00" autocomplete="off" /></div>
+              </div>
+            </div>
+            <p class="mmd-hint">Repayments are estimates assuming the rate stays constant for the period shown. Fees are not included. The rate-movement scenario is illustrative only. Extra-repayment savings apply to Principal &amp; interest loans.</p>
 
             <div class="mmd-actions">
               <button type="submit" class="mmd-btn mmd-btn--primary" id="rp_calc">Calculate</button>
@@ -84,6 +106,28 @@
                   <span class="mmd-card__label">Total repayments</span>
                   <span class="mmd-card__value" id="rpr_total">$0.00</span>
                 </div>
+
+                <div class="mmd-card mmd-card--full" id="rpr_extrawrap" style="display:none">
+                  <span class="mmd-card__label">With your extra repayments</span>
+                  <span class="mmd-card__sub">Estimated impact of paying extra (Principal &amp; interest loans).</span>
+                </div>
+                <div class="mmd-card is-positive" id="rpr_timesavedcard" style="display:none">
+                  <span class="mmd-card__label">Time saved</span>
+                  <span class="mmd-card__value" id="rpr_timesaved">—</span>
+                </div>
+                <div class="mmd-card is-positive" id="rpr_intsavedcard" style="display:none">
+                  <span class="mmd-card__label">Interest saved</span>
+                  <span class="mmd-card__value" id="rpr_intsaved">$0.00</span>
+                </div>
+                <div class="mmd-card" id="rpr_payoffcard" style="display:none">
+                  <span class="mmd-card__label">Loan paid off in</span>
+                  <span class="mmd-card__value" id="rpr_payoff">—</span>
+                </div>
+                <div class="mmd-card" id="rpr_intwithcard" style="display:none">
+                  <span class="mmd-card__label">Interest with extra</span>
+                  <span class="mmd-card__value" id="rpr_intwith">$0.00</span>
+                </div>
+
                 <div class="mmd-card mmd-card--full">
                   <span class="mmd-card__label">If your rate changed…</span>
                   <span class="mmd-card__sub">Estimated repayment per period at each rate — illustrative only.</span>
